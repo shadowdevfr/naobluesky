@@ -11,16 +11,13 @@ USERNAME = os.environ['USERNAME']
 EMAIL = os.environ['EMAIL']
 PASSWORD = os.environ['PASSWORD']
 BSKY_NAME = os.environ['BSKY_NAME']
+BSKY_PASSWORD = os.environ['BSKY_PASSWORD']
 
 # Initialize client
 client = twt('en-US')
 
 async def main():
-    await client.login(
-        auth_info_1=USERNAME ,
-        auth_info_2=EMAIL,
-        password=PASSWORD
-    )
+    client.load_cookies('cookies.json')
     
     file = open("lasttweet.txt","r")
 
@@ -40,7 +37,7 @@ async def main():
     print(md5)
     
     bsky = Client()
-    bsky.authenticate(BSKY_NAME, PASSWORD)
+    bsky.authenticate(BSKY_NAME, BSKY_PASSWORD)
     post = Post(tweets[0].text)
     bsky.post(post)
     
