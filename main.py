@@ -26,14 +26,13 @@ async def main():
 
     if "RT @" in tweets[0].text:
         file.close()
-        exit()
-        
+        return        
     md5 = hashlib.md5(tweets[0].text.encode('utf-8')).hexdigest()    
     
     if file.read() == md5:
         print("on tweet pas c'est le meme")
         file.close()
-        exit()
+        return
     print(md5)
     
     bsky = Client()
