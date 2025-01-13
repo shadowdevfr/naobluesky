@@ -4,6 +4,7 @@ from blueskysocial import Client, Post, Image
 import hashlib
 import schedule
 import os
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -50,3 +51,7 @@ def run():
     
 run()
 schedule.every(5).minutes.do(run)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
