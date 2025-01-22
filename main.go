@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -93,6 +94,12 @@ func main() {
 	lasttweet, err := os.ReadFile("lasttweet.txt")
 	if err != nil {
 		panic(err)
+	}
+
+	if strings.HasPrefix(tweets[0].Text, "@") { // Surement une réponse à un tweet, on ignore
+		log.Println("Le tweet est une réponse à quelqu'un, on ignore.")
+		os.Exit(0)
+		return
 	}
 
 	if string(lasttweet) == tweets[0].ID {
