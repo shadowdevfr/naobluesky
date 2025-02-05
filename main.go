@@ -14,14 +14,10 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/shadowdevfr/naobluesky/bluesky"
+	"github.com/shadowdevfr/naobluesky/mastodon"
 )
 
 func main() {
-	//loc, _ := time.LoadLocation("Europe/Paris")
-	//if time.Now().In(loc).Weekday() == time.Sunday || time.Now().In(loc).Hour() > 19 || (time.Now().In(loc).Hour() == 19 && time.Now().In(loc).Minute() > 40) || time.Now().In(loc).Hour() < 6 || (time.Now().In(loc).Hour() == 6 && time.Now().In(loc).Minute() < 20) {
-	//	fmt.Println("doesn't run, on sunday or greater than 19:40 or under 6:20")
-	//	return
-	//}
 	err := godotenv.Load(".env")
 	if err != nil {
 		panic(err)
@@ -40,8 +36,11 @@ func main() {
 	}
 
 	apifyToken := os.Getenv("APIFY_TOKEN")
-	if rand.Intn(1) == 1 {
+	if rand.Intn(2) == 1 {
 		apifyToken = os.Getenv("APIFY_TOKEN2")
+		log.Println("Utilisation d'APIFY 2")
+	} else {
+		log.Println("Utilisation d'APIFY 1")
 	}
 
 	resp, err := http.Post(fmt.Sprintf("https://api.apify.com/v2/acts/CJdippxWmn9uRfooo/runs?token=%s", apifyToken), "application/json", bytes.NewBuffer(requestBody))
@@ -63,6 +62,9 @@ func main() {
 	}
 
 	log.Printf("[APIFY] Dataset: %s", response.Data.DefaultDatasetID)
+	if response.Data.DefaultDatasetID == "" {
+		panic("Empty dataset: apify limit reached?")
+	}
 	log.Println("Attente d'une réponse...")
 	time.Sleep(15 * time.Second)
 
@@ -115,5 +117,9 @@ func main() {
 
 	session := bluesky.CreateSession(os.Getenv("BSKY_NAME"), os.Getenv("BSKY_PASSWORD"))
 	bluesky.Post(session, tweets[0].Text)
-	log.Println("posted")
+	log.Println("Posté sur Bluesky")
+
+	ma := mastodon.Mastodon{Instance: os.Getenv("MASTODON_INSTANCE"), Token: os.Getenv("MASTODON_TOKEN")}
+	ma.Post(tweets[0].Text)
+	log.Printf("Posté sur Mastodon: %s\n", os.Getenv("MASTODON_INSTANCE"))
 }
